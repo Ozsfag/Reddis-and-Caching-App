@@ -5,7 +5,6 @@ import com.example.demo.exceptions.NotFoundException;
 import com.example.demo.mappers.BookMapper;
 import com.example.demo.repositories.BookRepository;
 import com.example.demo.web.models.BookRequest;
-import jakarta.transaction.Transactional;
 import java.text.MessageFormat;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -35,7 +35,7 @@ public class BookService {
             .orElseThrow(
                 () ->
                     new NotFoundException(
-                        MessageFormat.format("Book with ID is: {} not found.", id))));
+                        MessageFormat.format("Book with ID is: {0} not found.", id))));
   }
 
   @Cacheable(value = "bookCategories", key = "#categoryName")
@@ -54,7 +54,7 @@ public class BookService {
                 () ->
                     new NotFoundException(
                         MessageFormat.format(
-                            "Book with title: {} and author: {} not found.", title, author))));
+                            "Book with title: {0} and author: {1} not found.", title, author))));
   }
 
   @Transactional

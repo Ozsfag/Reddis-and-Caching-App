@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Entity
+@Table(name = "books")
 @AllArgsConstructor
 @Data
 public class Book {

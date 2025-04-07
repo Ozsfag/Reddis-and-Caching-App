@@ -5,14 +5,15 @@ import com.example.demo.exceptions.NotFoundException;
 import com.example.demo.mappers.CategoryMapper;
 import com.example.demo.repositories.CategoryRepository;
 import com.example.demo.web.models.CategoryRequest;
-import jakarta.transaction.Transactional;
 import java.text.MessageFormat;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -21,11 +22,14 @@ public class CategoryService {
   private final CategoryRepository categoryRepository;
   private final CategoryMapper categoryMapper;
 
+  @Transactional(readOnly = true)
+  @Cacheable(value = "categories")
   public List<CategoryDto> findAll() {
     log.info("CategoryService executing findAll method.");
     return categoryMapper.categoryListToCatgoryDtoList(categoryRepository.findAll());
   }
 
+  @Transactional(readOnly = true)
   @Cacheable(value = "categoryIds", key = "#id")
   public CategoryDto findById(Long id) {
     log.info("CategoryService executing findById method.");
@@ -35,21 +39,28 @@ public class CategoryService {
             .orElseThrow(
                 () ->
                     new NotFoundException(
-                        MessageFormat.format("Category with ID is: {} not found.", id))));
+                        MessageFormat.format("Category with ID is: {0} not found.", id))));
   }
 
   @Transactional
-  @CacheEvict(
-      value = {"categoryIds"},
-      allEntries = true)
+  @Caching(
+      evict = {
+        @CacheEvict(value = "categoryIds", allEntries = true),
+        @CacheEvict(value = "categories", allEntries = true)
+      })
   public CategoryDto create(CategoryRequest categoryRequest) {
-    log.info("CategoryService executing create method.");
-    return categoryMapper.categoryToCategoryDto(
-        categoryRepository.save(categoryMapper.categoryRequestToCategory(categoryRequest)));
+    log.info("Executing create method in CategoryService.");
+    var category = categoryMapper.categoryRequestToCategory(categoryRequest);
+    var savedCategory = categoryRepository.save(category);
+    return categoryMapper.categoryToCategoryDto(savedCategory);
   }
 
   @Transactional
-  @CacheEvict(value = "categoryIds", allEntries = true)
+  @Caching(
+      evict = {
+        @CacheEvict(value = "categoryIds", allEntries = true),
+        @CacheEvict(value = "categories", allEntries = true)
+      })
   public CategoryDto update(Long id, CategoryRequest categoryRequest) {
     log.info("CategoryService executing update method.");
     var existedCategory = categoryMapper.categoryDtoToCategory(findById(id));
@@ -59,7 +70,11 @@ public class CategoryService {
   }
 
   @Transactional
-  @CacheEvict(value = "categoryIds", allEntries = true)
+  @Caching(
+      evict = {
+        @CacheEvict(value = "categoryIds", allEntries = true),
+        @CacheEvict(value = "categories", allEntries = true)
+      })
   public void deleteById(Long id) {
     log.info("CategoryService executing delete method.");
     var existedCategoryDto = findById(id);

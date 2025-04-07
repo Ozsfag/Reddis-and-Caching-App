@@ -29,13 +29,17 @@ public class BookController {
   }
 
   @GetMapping("/category/{categoryName}")
-  public ResponseEntity<List<BookResponse>> getAllBooksByCategoryName(@PathVariable String categoryName) {
-    return ResponseEntity.ok(bookMapper.bookDtoListToBookResponseList(bookService.findAllByCategoryName(categoryName)));
+  public ResponseEntity<List<BookResponse>> getAllBooksByCategoryName(
+      @PathVariable String categoryName) {
+    return ResponseEntity.ok(
+        bookMapper.bookDtoListToBookResponseList(bookService.findAllByCategoryName(categoryName)));
   }
 
   @GetMapping("/title/{title}/author/{author}")
-  public ResponseEntity<BookResponse> getBookByTitleAndAuthor(@PathVariable String title, @PathVariable String author) {
-    return ResponseEntity.ok(bookMapper.bookDtoToBookResponse(bookService.findByTitleAndAuthor(title, author)));
+  public ResponseEntity<BookResponse> getBookByTitleAndAuthor(
+      @PathVariable String title, @PathVariable String author) {
+    return ResponseEntity.ok(
+        bookMapper.bookDtoToBookResponse(bookService.findByTitleAndAuthor(title, author)));
   }
 
   @PostMapping()

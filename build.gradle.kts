@@ -31,6 +31,8 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-validation")
 
     implementation("org.postgresql:postgresql")
+    implementation("org.liquibase:liquibase-core:4.31.1")
+    implementation("io.lettuce:lettuce-core")
 
     implementation("org.mapstruct:mapstruct:1.6.3")
     compileOnly("org.projectlombok:lombok")
