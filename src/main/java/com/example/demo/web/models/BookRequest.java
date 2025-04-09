@@ -8,4 +8,4 @@ public record BookRequest(
     @NonNull @Getter Long id,
     @NotBlank @Getter String title,
     @NotBlank @Getter String author,
-    @NonNull @Getter CategoryRequest categoryRequest) {}
+    @NonNull @Getter Long categoryId) {}

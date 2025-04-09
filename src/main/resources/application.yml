@@ -9,11 +9,26 @@ spring:
     password: postgres
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.xml
+
+
 app:
   redis:
     enable: true
     host: localhost
     port: 6379
-
   cache:
     type: redis
+    caches:
+      books:
+        expiry: 10m
+      bookIds:
+        expiry: 10m
+      bookCategories:
+        expiry: 10m
+      bookTitleAndAuthor:
+        expiry: 10m
+      categories:
+        expiry: 10m
+      categoryIds:
+        expiry: 10m
+

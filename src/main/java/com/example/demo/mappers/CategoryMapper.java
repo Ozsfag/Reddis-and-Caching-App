@@ -8,6 +8,7 @@ import java.util.List;
 import org.mapstruct.*;
 
 @Mapper(componentModel = "spring")
+@Named("CategoryMapper")
 public interface CategoryMapper {
 
   @Named("categoryToCategoryDto")

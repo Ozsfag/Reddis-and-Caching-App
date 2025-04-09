@@ -10,6 +10,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
@@ -43,13 +44,9 @@ public class CategoryService {
   }
 
   @Transactional
-  @Caching(
-      evict = {
-        @CacheEvict(value = "categoryIds", allEntries = true),
-        @CacheEvict(value = "categories", allEntries = true)
-      })
+  @CachePut(value = "categoryIds", key = "#result.id")
   public CategoryDto create(CategoryRequest categoryRequest) {
-    log.info("Executing create method in CategoryService.");
+    log.info("Executing create method.");
     var category = categoryMapper.categoryRequestToCategory(categoryRequest);
     var savedCategory = categoryRepository.save(category);
     return categoryMapper.categoryToCategoryDto(savedCategory);
@@ -58,7 +55,7 @@ public class CategoryService {
   @Transactional
   @Caching(
       evict = {
-        @CacheEvict(value = "categoryIds", allEntries = true),
+        @CacheEvict(value = "categoryIds", key = "#id"),
         @CacheEvict(value = "categories", allEntries = true)
       })
   public CategoryDto update(Long id, CategoryRequest categoryRequest) {
@@ -72,7 +69,7 @@ public class CategoryService {
   @Transactional
   @Caching(
       evict = {
-        @CacheEvict(value = "categoryIds", allEntries = true),
+        @CacheEvict(value = "categoryIds", key = "#id"),
         @CacheEvict(value = "categories", allEntries = true)
       })
   public void deleteById(Long id) {

@@ -10,6 +10,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,11 +22,14 @@ public class BookService {
   private final BookRepository bookRepository;
   private final BookMapper bookMapper;
 
+  @Transactional(readOnly = true)
+  @Cacheable("books")
   public List<BookDto> findAll() {
     log.info("BookService executing findAll method.");
     return bookMapper.bookListToBookDtoList(bookRepository.findAll());
   }
 
+  @Transactional(readOnly = true)
   @Cacheable(value = "bookIds", key = "#id")
   public BookDto findById(Long id) {
     log.info("BookService executing findById method.");
@@ -38,12 +42,14 @@ public class BookService {
                         MessageFormat.format("Book with ID is: {0} not found.", id))));
   }
 
+  @Transactional(readOnly = true)
   @Cacheable(value = "bookCategories", key = "#categoryName")
   public List<BookDto> findAllByCategoryName(String categoryName) {
     log.info("BookService executing findAllByCategoryName method.");
     return bookMapper.bookListToBookDtoList(bookRepository.findAllByCategoryName(categoryName));
   }
 
+  @Transactional(readOnly = true)
   @Cacheable(value = "bookTitleAndAuthor", key = "#title" + "_" + "#author")
   public BookDto findByTitleAndAuthor(String title, String author) {
     log.info("BookService executing findByTitleAndAuthor method.");
@@ -58,9 +64,7 @@ public class BookService {
   }
 
   @Transactional
-  @CacheEvict(
-      value = {"bookIds", "bookCategories", "bookTitleAndAuthor"},
-      allEntries = true)
+  @CachePut(value = "bookIds", key = "#request.id")
   public BookDto create(BookRequest request) {
     log.info("bookService executing create method.");
     return bookMapper.bookToBookDto(bookRepository.save(bookMapper.bookRequestToBook(request)));
@@ -68,7 +72,7 @@ public class BookService {
 
   @Transactional
   @CacheEvict(
-      value = {"bookIds", "bookCategories", "bookTitleAndAuthor"},
+      value = {"books", "bookIds", "bookCategories", "bookTitleAndAuthor"},
       allEntries = true)
   public BookDto update(Long id, BookRequest request) {
     log.info("BookService executing method update.");
@@ -79,7 +83,7 @@ public class BookService {
 
   @Transactional
   @CacheEvict(
-      value = {"bookIds", "bookCategories", "bookTitleAndAuthor"},
+      value = {"books", "bookIds", "bookCategories", "bookTitleAndAuthor"},
       allEntries = true)
   public void deleteById(Long id) {
     log.info("BookService executing delete method.");
